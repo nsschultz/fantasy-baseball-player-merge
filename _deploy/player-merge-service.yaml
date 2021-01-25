@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: player-merge
+  namespace: baseball
+spec:
+  selector:
+    app: player-merge
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: player-merge
