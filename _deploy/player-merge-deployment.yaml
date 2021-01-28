@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: player-merge
-        image: nschultz/fantasy-baseball-player-merge:0.5.2
+        image: nschultz/fantasy-baseball-player-merge:0.5.4
         ports:
           - name: web
             containerPort: 8080
