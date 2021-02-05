@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FantasyBaseball.CommonModels.Player;
-using FantasyBaseball.PlayerMergeService.Controllers;
+using FantasyBaseball.Common.Models;
 using FantasyBaseball.PlayerMergeService.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace FantasyBaseball.PlayerMergeService.UnitTests.Controllers
+namespace FantasyBaseball.PlayerMergeService.Controllers.UnitTests
 {
     public class PlayerMergeControllerTest
     {
@@ -23,9 +22,9 @@ namespace FantasyBaseball.PlayerMergeService.UnitTests.Controllers
             config.Setup(o => o.GetSection("ServiceUrls:BhqStatsService")).Returns(bhqStatsSection.Object);
             var merge = new Mock<IMergeService>();
             merge.Setup(o => o.MergePlayers(
-                It.Is<List<BaseballPlayer>>(p => p.First().PlayerInfo.Id == 1),
-                It.Is<List<BaseballPlayer>>(p => p.First().PlayerInfo.Id == 2),
-                It.Is<List<BaseballPlayer>>(p => p.First().PlayerInfo.Id == 3)
+                It.Is<List<BaseballPlayer>>(p => p.First().BhqId == 1),
+                It.Is<List<BaseballPlayer>>(p => p.First().BhqId == 2),
+                It.Is<List<BaseballPlayer>>(p => p.First().BhqId == 3)
             )).Returns(new List<BaseballPlayer> { BuildTestPlayer(1), BuildTestPlayer(2), BuildTestPlayer(3) });
             var getter = new Mock<IDataGetterService>();
             getter.Setup(o => o.GetData<PlayerCollection>("player-service/player")).ReturnsAsync(new PlayerCollection { Players = BuildTestPlayerList(1) });
@@ -36,9 +35,8 @@ namespace FantasyBaseball.PlayerMergeService.UnitTests.Controllers
             await new PlayerMergeController(config.Object, merge.Object, getter.Object, update.Object).MergePlayers();
         }
 
-        private static BaseballPlayer BuildTestPlayer(int id) => new BaseballPlayer { PlayerInfo = new PlayerInfo { Id = id } };
+        private static BaseballPlayer BuildTestPlayer(int id) => new BaseballPlayer { BhqId = id };
 
-        private static List<BaseballPlayer> BuildTestPlayerList(int id) => 
-            new List<BaseballPlayer> { new BaseballPlayer { PlayerInfo = new PlayerInfo { Id = id } } };
+        private static List<BaseballPlayer> BuildTestPlayerList(int id) => new List<BaseballPlayer> { new BaseballPlayer { BhqId = id } };
     }
 }

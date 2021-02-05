@@ -1,6 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
-using FantasyBaseball.CommonModels.Exceptions;
+using FantasyBaseball.Common.Exceptions;
 
 namespace FantasyBaseball.PlayerMergeService.Services
 {

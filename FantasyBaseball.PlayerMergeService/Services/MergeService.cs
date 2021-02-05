@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FantasyBaseball.CommonModels.Builders;
-using FantasyBaseball.CommonModels.Player;
+using FantasyBaseball.Common.Models;
+using FantasyBaseball.Common.Models.Builders;
 using FantasyBaseball.PlayerMergeService.Models;
 
 namespace FantasyBaseball.PlayerMergeService.Services
@@ -22,13 +22,13 @@ namespace FantasyBaseball.PlayerMergeService.Services
             existingPlayers = existingPlayers ?? new List<BaseballPlayer>();
             batters = batters ?? new List<BaseballPlayer>();
             pitchers = pitchers  ?? new List<BaseballPlayer>();
-            var existingDictionary = existingPlayers.GroupBy(p => BuildKey(p.PlayerInfo)).ToDictionary(g => g.Key, g => g.First());
+            var existingDictionary = existingPlayers.GroupBy(p => BuildKey(p)).ToDictionary(g => g.Key, g => g.First());
             var newData = MergePlayers(existingDictionary, batters, pitchers);
             LogStats(existingPlayers, batters, pitchers, newData);
             return newData;
         }
 
-        private static BhqPlayerKey BuildKey(PlayerInfo info) => new BhqPlayerKey(info.Id, info.Type);
+        private static BhqPlayerKey BuildKey(BaseballPlayer player) => new BhqPlayerKey(player.BhqId, player.Type);
 
         private static BaseballPlayer FindAndRemovePlayer(Dictionary<BhqPlayerKey, BaseballPlayer> existingDictionary, BhqPlayerKey key)
         {
@@ -50,53 +50,53 @@ namespace FantasyBaseball.PlayerMergeService.Services
         }
         
         private static BaseballPlayer MergePlayer(BaseballPlayer existing, BaseballPlayer bhqData) =>
-            new BaseballPlayer 
-            {
-                PlayerInfo = MergePlayerInfo(existing, bhqData),
-                LeagueInfo = existing?.LeagueInfo ?? new LeagueInfo(),
-                DraftInfo = existing?.DraftInfo ?? new DraftInfo(),
-                BhqScores = bhqData.BhqScores,
-                YearToDateBattingStats = new BattingStatsBuilder().AddStats(bhqData.YearToDateBattingStats).Build(),
-                YearToDatePitchingStats = new PitchingStatsBuilder().AddStats(bhqData.YearToDatePitchingStats).Build(),
-                ProjectedBattingStats = new BattingStatsBuilder().AddStats(bhqData.ProjectedBattingStats).Build(),
-                ProjectedPitchingStats = new PitchingStatsBuilder().AddStats(bhqData.ProjectedPitchingStats).Build(),
-                CombinedBattingStats = new BattingStatsBuilder()
-                    .AddStats(bhqData.YearToDateBattingStats)
-                    .AddStats(bhqData.ProjectedBattingStats)
-                    .Build(),
-                CombinedPitchingStats = new PitchingStatsBuilder()
-                    .AddStats(bhqData.YearToDatePitchingStats)
-                    .AddStats(bhqData.ProjectedPitchingStats)
-                    .Build()
-            };
-            
-        private static PlayerInfo MergePlayerInfo(BaseballPlayer existing, BaseballPlayer bhqData) =>
-            existing == null 
-                ? bhqData.PlayerInfo 
-                : new PlayerInfo
+            existing == null
+                ? bhqData
+                : new BaseballPlayer 
                 {
-                    Id = existing.PlayerInfo.Id,
-                    FirstName = existing.PlayerInfo.FirstName,
-                    LastName = existing.PlayerInfo.LastName,
-                    Age = MergePlayerValue(existing, bhqData, p => p.PlayerInfo.Age),
-                    Type = existing.PlayerInfo.Type,
-                    Positions = existing.PlayerInfo.Positions,
-                    Team = MergePlayerValue(existing, bhqData, p => p.PlayerInfo.Team),
-                    Status = existing.PlayerInfo.Status
+                    Id = existing.Id,
+                    BhqId = existing.BhqId,
+                    FirstName = existing.FirstName,
+                    LastName = existing.LastName,
+                    Age = MergePlayerValue(existing, bhqData, p => p.Age),
+                    Type = existing.Type,
+                    Positions = existing.Positions,
+                    Team = MergePlayerValue(existing, bhqData, p => p.Team),
+                    Status = existing.Status,
+                    League1 = existing.League1,
+                    League2 = existing.League2,
+                    DraftRank = existing.DraftRank,
+                    AverageDraftPick = existing.AverageDraftPick,
+                    HighestPick = existing.HighestPick,
+                    DraftedPercentage = existing.DraftedPercentage,
+                    Reliability = bhqData.Reliability,
+                    MayberryMethod = bhqData.MayberryMethod,
+                    YearToDateBattingStats = new BattingStatsBuilder().AddStats(bhqData.YearToDateBattingStats).Build(),
+                    YearToDatePitchingStats = new PitchingStatsBuilder().AddStats(bhqData.YearToDatePitchingStats).Build(),
+                    ProjectedBattingStats = new BattingStatsBuilder().AddStats(bhqData.ProjectedBattingStats).Build(),
+                    ProjectedPitchingStats = new PitchingStatsBuilder().AddStats(bhqData.ProjectedPitchingStats).Build(),
+                    CombinedBattingStats = new BattingStatsBuilder()
+                        .AddStats(bhqData.YearToDateBattingStats)
+                        .AddStats(bhqData.ProjectedBattingStats)
+                        .Build(),
+                    CombinedPitchingStats = new PitchingStatsBuilder()
+                        .AddStats(bhqData.YearToDatePitchingStats)
+                        .AddStats(bhqData.ProjectedPitchingStats)
+                        .Build()
                 };
-        
+            
         private static List<BaseballPlayer> MergePlayers(Dictionary<BhqPlayerKey, BaseballPlayer> existingDictionary, 
                                                          IEnumerable<BaseballPlayer> batters,
                                                          IEnumerable<BaseballPlayer> pitchers)
         {
             var newData = new List<BaseballPlayer>();
-            newData.AddRange(batters.Select(b => MergePlayer(FindAndRemovePlayer(existingDictionary, BuildKey(b.PlayerInfo)), b)));
-            newData.AddRange(pitchers.Select(p => MergePlayer(FindAndRemovePlayer(existingDictionary, BuildKey(p.PlayerInfo)), p)));
+            newData.AddRange(batters.Select(b => MergePlayer(FindAndRemovePlayer(existingDictionary, BuildKey(b)), b)));
+            newData.AddRange(pitchers.Select(p => MergePlayer(FindAndRemovePlayer(existingDictionary, BuildKey(p)), p)));
             newData.AddRange(existingDictionary.Values.Select(e => MergePlayer(e, new BaseballPlayer())));
             return newData;
         }
 
         private static T MergePlayerValue<T>(BaseballPlayer existing, BaseballPlayer bhqData, Func<BaseballPlayer, T> getter) =>
-            bhqData.PlayerInfo.Id > 0 ? getter(bhqData) : getter(existing);
+            bhqData.BhqId > 0 ? getter(bhqData) : getter(existing);
     }
 }

@@ -1,11 +1,10 @@
-using FantasyBaseball.CommonModels.Exceptions;
-using FantasyBaseball.PlayerMergeService.Controllers;
+using FantasyBaseball.Common.Exceptions;
 using FantasyBaseball.PlayerMergeService.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace FantasyBaseball.PlayerMergeService.UnitTests.Controllers
+namespace FantasyBaseball.PlayerMergeService.Controllers.UnitTests
 {
     public class HealthControllerTest
     {
