@@ -1,8 +1,7 @@
-using FantasyBaseball.CommonModels.Enums;
-using FantasyBaseball.PlayerMergeService.Models;
+using FantasyBaseball.Common.Enums;
 using Xunit;
 
-namespace FantasyBaseball.PlayerMergeService.UnitTests.Models
+namespace FantasyBaseball.PlayerMergeService.Models.UnitTests
 {
     public class BhqPlayerKeyTest
     {

@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using FantasyBaseball.CommonModels.Enums;
-using FantasyBaseball.CommonModels.Player;
-using FantasyBaseball.CommonModels.Stats;
-using FantasyBaseball.PlayerMergeService.Services;
+using FantasyBaseball.Common.Enums;
+using FantasyBaseball.Common.Models;
 using Xunit;
 
-namespace FantasyBaseball.PlayerMergeService.UnitTests.Services
+namespace FantasyBaseball.PlayerMergeService.Services.UnitTests
 {
     public class MergeServiceTest
     {
@@ -57,20 +55,17 @@ namespace FantasyBaseball.PlayerMergeService.UnitTests.Services
         private static BaseballPlayer BuildPlayer(int id, int value, PlayerType type, bool existing) =>
             new BaseballPlayer 
             {
-                PlayerInfo = new PlayerInfo
-                {
-                    Id = id,
-                    FirstName = $"First-{value}",
-                    LastName = $"Last-{value}",
-                    Age = value,
-                    Type = type,
-                    Positions = $"Pos-{value}",
-                    Team = $"Team-{value}",
-                    Status = existing ? PlayerStatus.XX : PlayerStatus.DL,
-                },
-                LeagueInfo = new LeagueInfo { League1 = existing ? LeagueStatus.R : LeagueStatus.S },
-                DraftInfo = new DraftInfo { DraftRank = existing ? value : value * -1 },
-                BhqScores = new BhqScores { MayberryMethod = existing ? value * -1 : value }, 
+                BhqId = id,
+                FirstName = $"First-{value}",
+                LastName = $"Last-{value}",
+                Age = value,
+                Type = type,
+                Positions = $"Pos-{value}",
+                Team = $"Team-{value}",
+                Status = existing ? PlayerStatus.DL : PlayerStatus.XX,
+                League1 = existing ? LeagueStatus.R : LeagueStatus.A,
+                DraftRank = existing ? value : 9999,
+                MayberryMethod = existing ? value * -1 : value, 
                 YearToDateBattingStats = new BattingStats { AtBats = existing && PlayerType.B == type ? value : 0 },
                 YearToDatePitchingStats = new PitchingStats { InningsPitched = existing && PlayerType.P == type ? value : 0 },
                 ProjectedBattingStats = new BattingStats { AtBats = existing && PlayerType.B == type ? value * 10 : 0 },
@@ -79,17 +74,17 @@ namespace FantasyBaseball.PlayerMergeService.UnitTests.Services
 
         private static void ValidatePlayer(BaseballPlayer existing, BaseballPlayer data, BaseballPlayer results)
         {
-            Assert.Equal((existing ?? data).PlayerInfo.Id, results.PlayerInfo.Id);
-            Assert.Equal((existing ?? data).PlayerInfo.FirstName, results.PlayerInfo.FirstName);
-            Assert.Equal((existing ?? data).PlayerInfo.LastName, results.PlayerInfo.LastName);
-            Assert.Equal((data ?? existing).PlayerInfo.Age, results.PlayerInfo.Age);
-            Assert.Equal((existing ?? data).PlayerInfo.Type, results.PlayerInfo.Type);
-            Assert.Equal((existing ?? data).PlayerInfo.Positions, results.PlayerInfo.Positions);
-            Assert.Equal((data ?? existing).PlayerInfo.Team, results.PlayerInfo.Team);
-            Assert.Equal((existing ?? data).PlayerInfo.Status, results.PlayerInfo.Status);
-            Assert.Equal((existing ?? new BaseballPlayer()).LeagueInfo.League1, results.LeagueInfo.League1);
-            Assert.Equal((existing ?? new BaseballPlayer()).DraftInfo.DraftRank, results.DraftInfo.DraftRank);
-            Assert.Equal((data ?? new BaseballPlayer()).BhqScores.MayberryMethod, results.BhqScores.MayberryMethod);
+            Assert.Equal((existing ?? data).BhqId, results.BhqId);
+            Assert.Equal((existing ?? data).FirstName, results.FirstName);
+            Assert.Equal((existing ?? data).LastName, results.LastName);
+            Assert.Equal((data ?? existing).Age, results.Age);
+            Assert.Equal((existing ?? data).Type, results.Type);
+            Assert.Equal((existing ?? data).Positions, results.Positions);
+            Assert.Equal((data ?? existing).Team, results.Team);
+            Assert.Equal((existing ?? data).Status, results.Status);
+            Assert.Equal((existing ?? new BaseballPlayer()).League1, results.League1);
+            Assert.Equal((existing ?? new BaseballPlayer()).DraftRank, results.DraftRank);
+            Assert.Equal((data ?? new BaseballPlayer()).MayberryMethod, results.MayberryMethod);
             Assert.Equal((data ?? new BaseballPlayer()).YearToDateBattingStats.AtBats, results.YearToDateBattingStats.AtBats);
             Assert.Equal((data ?? new BaseballPlayer()).YearToDatePitchingStats.InningsPitched, results.YearToDatePitchingStats.InningsPitched);
             Assert.Equal((data ?? new BaseballPlayer()).ProjectedBattingStats.AtBats, results.ProjectedBattingStats.AtBats);

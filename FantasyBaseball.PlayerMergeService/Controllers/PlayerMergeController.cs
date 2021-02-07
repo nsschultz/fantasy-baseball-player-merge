@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FantasyBaseball.CommonModels.Player;
+using FantasyBaseball.Common.Models;
 using FantasyBaseball.PlayerMergeService.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

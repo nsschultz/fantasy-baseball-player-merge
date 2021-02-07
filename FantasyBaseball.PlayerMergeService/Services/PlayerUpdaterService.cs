@@ -4,8 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FantasyBaseball.CommonModels.Exceptions;
-using FantasyBaseball.CommonModels.Player;
+using FantasyBaseball.Common.Exceptions;
+using FantasyBaseball.Common.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace FantasyBaseball.PlayerMergeService.Services
