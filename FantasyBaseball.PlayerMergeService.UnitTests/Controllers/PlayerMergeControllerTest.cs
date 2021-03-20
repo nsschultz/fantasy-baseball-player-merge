@@ -33,6 +33,8 @@ namespace FantasyBaseball.PlayerMergeService.Controllers.UnitTests
             var update = new Mock<IPlayerUpdaterService>();
             update.Setup(o => o.UpdatePlayers(It.Is<List<BaseballPlayer>>(p => p.Count == 3))).Returns(Task.FromResult(0));
             await new PlayerMergeController(config.Object, merge.Object, getter.Object, update.Object).MergePlayers();
+            getter.VerifyAll();
+            update.VerifyAll();
         }
 
         private static BaseballPlayer BuildTestPlayer(int id) => new BaseballPlayer { BhqId = id };
